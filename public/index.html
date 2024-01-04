@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app test</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<style>
+  body {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+</style>
+
+<body>
+  <!-- <img
+      src="/public/image/hcmus-2k.png"
+      alt="logo HCMUS"
+      style="max-width: 400px"
+    /> -->
+  <div class="border">
+    <h1 class="bg-dark-subtle py-3 text-center mb-3">BOTCHAT</h1>
+    <div id="boxchat" class="mb-3 px-3" style="height: 500px; overflow: auto"></div>
+  </div>
+  <form id="requestForm">
+    <div class="input-group mb-3">
+      <span class="input-group-text">&gt;</span>
+      <input type="text" class="form-control" placeholder="chat here" aria-label="prompt" id="prompt" />
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </form>
+
+  <!-- CALL MODEL -->
+  <script>
+    $("#requestForm").submit(function (event) {
+      event.preventDefault();
+      callAPI();
+    });
+    function callAPI() {
+      const prompt = document.getElementById("prompt").value;
+      // console.log(prompt);
+      if (!prompt) return;
+      document.getElementById("prompt").value = "";
+
+      //USER MESSAGE
+      const user_class = "bg-primary rounded p-2 mb-2 text-white";
+      const user_message = `<div class = "${user_class}"
+                            style="width: fit-content; height: fit-content;
+                            max-width:400px;
+                            overflow:auto;">${prompt}</div>`;
+      const user_avatar = `<i class="fa-solid fa-user-tie"></i>`;
+      const user_output = `<div class="d-flex justify-content-end gap-2">
+                                ${user_message}${user_avatar}
+                            </div>`;
+      $("#boxchat").append(user_output);
+
+      //BOT MESSAGE
+      $.post("/api/model", { prompt: prompt }, (data, response) => {
+        console.log('123123', prompt);
+        const ans = data.ans;
+        const bot_class = "bg-success rounded p-2 mb-2 text-white";
+        const bot_message = `<div class = "${bot_class}"
+                            style="width: fit-content; height: fit-content;
+                            max-width:400px;
+                            overflow:auto;">${ans}</div>`;
+        const bot_avatar = `<i class="fa-solid fa-robot"></i>`;
+        const bot_output = `<div class="d-flex justify-content-start gap-2">
+                                ${bot_avatar}${bot_message}
+                            </div>`;
+        $("#boxchat").append(bot_output);
+        var container = $("#boxchat");
+        container.scrollTop(container.prop("scrollHeight"));
+      });
+    }
+  </script>
+</body>
+
+</html>
