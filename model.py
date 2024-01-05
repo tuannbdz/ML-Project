@@ -1,6 +1,6 @@
 from openai import OpenAI
 client = OpenAI(
-    api_key="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",  # Replace with your actual OpenAI API key
+    api_key="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",  # Replace with your actual OpenAI API key
 )
 
 assistant = client.beta.assistants.retrieve('asst_vW6GljPSXmi5PX5IK8pxYumn')
