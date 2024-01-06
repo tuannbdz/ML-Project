@@ -219,7 +219,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 client = OpenAI(
-    api_key="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",  # Replace with your actual OpenAI API key
+    api_key="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",  # Replace with your actual OpenAI API key
 )
 
 assistant = client.beta.assistants.retrieve('asst_vW6GljPSXmi5PX5IK8pxYumn')
