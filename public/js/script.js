@@ -6,10 +6,10 @@ goToBottomBtn.addEventListener('click', () => {
 })
 
 boxchat.addEventListener('scroll', () => {
-    if(boxchat.scrollHeight - boxchat.scrollTop < boxchat.clientHeight + 200){
+    if (boxchat.scrollHeight - boxchat.scrollTop < boxchat.clientHeight + 200) {
         goToBottomBtn.style.display = "none"
     }
-    else{
+    else {
         goToBottomBtn.style.display = "flex"
     }
 })
@@ -17,8 +17,8 @@ boxchat.addEventListener('scroll', () => {
 $("#requestForm").submit(function (event) {
     event.preventDefault();
     callAPI();
-  });
-  function callAPI() {
+});
+function callAPI() {
     const prompt = document.getElementById("prompt").value;
     // console.log(prompt);
     if (!prompt) return;
@@ -40,21 +40,46 @@ $("#requestForm").submit(function (event) {
 
     //BOT MESSAGE
     $.post("/api/model", { prompt: prompt }, (data, response) => {
-      console.log('123123', prompt);
-      const ans = data.ans;
-      const bot_output = `
+        const ans = data.ans;
+        const sampleRate = data.rate;
+        const audioData = data.y;
+        const bot_output = `
         <div class="chat">
-            <div class="chat-icon">
-                <i class="fa-solid fa-robot fa-2xl" style="color: #1738be;"></i>
-            </div>
-            <div class="chat-content">
-                <div class="chat-content-title">BotChat</div>
-                <div class="chat-content-text">${ans}</div>
-            </div>
+        <div class="chat-icon">
+        <i class="fa-solid fa-robot fa-2xl" style="color: #1738be;"></i>
         </div>
-    `
-      $("#boxchat").append(bot_output);
-      var container = $("#boxchat");
-      container.scrollTop(container.prop("scrollHeight"));
+        <div class="chat-content">
+        <div class="chat-content-title">BotChat</div>
+        <div class="chat-content-text">${ans}</div>
+        </div>
+        </div>
+        `
+        $("#boxchat").append(bot_output);
+        var container = $("#boxchat");
+        container.scrollTop(container.prop("scrollHeight"));
+
+        // Create a new AudioContext
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+            sampleRate: sampleRate
+        });
+
+        // Create an AudioBuffer
+        const audioBuffer = audioCtx.createBuffer(1, audioData.length, sampleRate);
+
+        // Fill the AudioBuffer with the audioData
+        const bufferChannel = audioBuffer.getChannelData(0);
+        for (let i = 0; i < audioData.length; i++) {
+            bufferChannel[i] = audioData[i] / 32768; // Convert from 16-bit int to floating point
+        }
+
+        // Create a buffer source
+        const source = audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+
+        // Connect the source to the context's destination (the speakers)
+        source.connect(audioCtx.destination);
+
+        // Start the source playing
+        source.start();
     });
-  }
+}
